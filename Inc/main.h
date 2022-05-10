@@ -31,7 +31,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32l496g_discovery.h"
+#include "stm32l496g_discovery_io.h"
+#include "stm32_ov5640_camera.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

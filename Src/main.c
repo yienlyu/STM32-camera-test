@@ -78,7 +78,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  BSP_LED_Init(LED2);
+  BSP_LED_Init(LED1);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

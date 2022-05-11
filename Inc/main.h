@@ -39,6 +39,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
+#define CAMERA_FRAME_BUFFER               0xD0200000
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

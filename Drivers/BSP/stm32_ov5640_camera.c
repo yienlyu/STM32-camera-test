@@ -207,6 +207,7 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat);
 int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFormat)
 {
   int32_t ret = BSP_ERROR_NONE;
+  BSP_IO_Init();
 
   if(Instance >= CAMERA_INSTANCES_NBR)
   {
@@ -239,9 +240,9 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     }
     else
     {
-#if (USE_CAMERA_SENSOR_OV9655 == 1)
-      ret= OV9655_Probe(Resolution, PixelFormat);
-#endif
+//#if (USE_CAMERA_SENSOR_OV9655 == 1)
+//      ret= OV9655_Probe(Resolution, PixelFormat);
+//#endif
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
       if(ret != BSP_ERROR_NONE)
       {
@@ -1296,21 +1297,13 @@ int32_t BSP_CAMERA_HwReset(uint32_t Instance)
   {
     /* Init DCMI PWR_ENABLE Pin */
     /* Enable GPIO clock */
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-
-    gpio_init_structure.Pin       = GPIO_PIN_14;
-    gpio_init_structure.Mode      = GPIO_MODE_OUTPUT_PP;
-    gpio_init_structure.Pull      = GPIO_NOPULL;
-    gpio_init_structure.Speed     = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOH, &gpio_init_structure);
-
-    /* De-assert the camera POWER_DOWN pin (active high) */
-    HAL_GPIO_WritePin(GPIOH,GPIO_PIN_14, GPIO_PIN_SET);
+	BSP_IO_ConfigPin(CAMERA_PWR_EN_PIN, IO_MODE_OUTPUT);
+	BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_SET);  // redLED down
 
     HAL_Delay(100);     /* POWER_DOWN de-asserted during 100 ms */
 
     /* Assert the camera POWER_DOWN pin (active high) */
-    HAL_GPIO_WritePin(GPIOH,GPIO_PIN_14, GPIO_PIN_RESET);
+	BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_RESET);  // redLED up
     HAL_Delay(20);
   }
 
@@ -1466,91 +1459,83 @@ static int32_t GetSize(uint32_t Resolution, uint32_t PixelFormat)
   */
 static void DCMI_MspInit(DCMI_HandleTypeDef *hdcmi)
 {
-  static DMA_HandleTypeDef hdma_handler;
-  GPIO_InitTypeDef gpio_init_structure;
+	  static DMA_HandleTypeDef hdma_handler;
+	  GPIO_InitTypeDef gpio_init_structure;
 
-  /*** Enable peripherals and GPIO clocks ***/
-  /* Enable DCMI clock */
-  __HAL_RCC_DCMI_CLK_ENABLE();
+	  /*** Enable peripherals and GPIO clocks ***/
+	  /* Enable DCMI clock */
+	  __HAL_RCC_DCMI_CLK_ENABLE();
 
-  /* Enable DMA2 clock */
-  __HAL_RCC_DMA2_CLK_ENABLE();
+	  /* Enable DMA2 clock */
+	  __HAL_RCC_DMA2_CLK_ENABLE();
 
-  /* Enable GPIO clocks */
+	  /* Enable GPIO clocks */
+	  __HAL_RCC_GPIOA_CLK_ENABLE();
+	  __HAL_RCC_GPIOE_CLK_ENABLE();
+	  __HAL_RCC_GPIOH_CLK_ENABLE();
+	  __HAL_RCC_GPIOI_CLK_ENABLE();
 
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
+	  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_4);
+	  __HAL_RCC_HSI48_ENABLE();
+	  HAL_Delay(10); // HSI48 should start in 10ms
 
-  /*** Configure the GPIO ***/
-  /* Configure DCMI GPIO as alternate function */
-  gpio_init_structure.Pin       = GPIO_PIN_4 | GPIO_PIN_6;
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
-  HAL_GPIO_Init(GPIOA, &gpio_init_structure);
 
-  gpio_init_structure.Pin       = GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
-  HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+	  /*** Configure the GPIO ***/
+	  /* Configure DCMI GPIO as alternate function */
+	  gpio_init_structure.Pin       = GPIO_PIN_5;
+	  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	  gpio_init_structure.Pull      = GPIO_NOPULL;
+	  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
+	  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
+	  HAL_GPIO_Init(GPIOE, &gpio_init_structure);
 
-  gpio_init_structure.Pin       = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_11;
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
-  HAL_GPIO_Init(GPIOC, &gpio_init_structure);
 
-  gpio_init_structure.Pin       = GPIO_PIN_3;
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
-  HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+	  gpio_init_structure.Pin       = GPIO_PIN_5 | GPIO_PIN_8 | GPIO_PIN_9 | \
+	                                  GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_14;
+	  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	  gpio_init_structure.Pull      = GPIO_NOPULL;
+	  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
+	  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
+	  HAL_GPIO_Init(GPIOH, &gpio_init_structure);
 
-  gpio_init_structure.Pin       = GPIO_PIN_10;
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
-  HAL_GPIO_Init(GPIOG, &gpio_init_structure);
+	  gpio_init_structure.Pin       = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_7;
+	  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	  gpio_init_structure.Pull      = GPIO_NOPULL;
+	  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
+	  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
+	  HAL_GPIO_Init(GPIOI, &gpio_init_structure);
 
-  /*** Configure the DMA ***/
-  /* Set the parameters to be configured */
-//  hdma_handler.Init.Request             = DMA_REQUEST_DCMI;
-  hdma_handler.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-  hdma_handler.Init.PeriphInc           = DMA_PINC_DISABLE;
-  hdma_handler.Init.MemInc              = DMA_MINC_ENABLE;
-  hdma_handler.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-  hdma_handler.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
-  hdma_handler.Init.Mode                = DMA_CIRCULAR;
-  hdma_handler.Init.Priority            = DMA_PRIORITY_HIGH;
-//  hdma_handler.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
-//  hdma_handler.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-//  hdma_handler.Init.MemBurst            = DMA_MBURST_SINGLE;
-//  hdma_handler.Init.PeriphBurst         = DMA_PBURST_SINGLE;
-//  hdma_handler.Instance                 = DMA2_Stream3;
+	  BSP_IO_ConfigPin(CAMERA_PWR_EN_PIN, IO_MODE_OUTPUT);
+	  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_SET);  // redLED down
+	  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_RESET);  // redLED up
 
-  /* Associate the initialized DMA handle to the DCMI handle */
-  __HAL_LINKDMA(hdcmi, DMA_Handle, hdma_handler);
+	  /*** Configure the DMA ***/
+	  /* Set the parameters to be configured */
+	  hdma_handler.Instance                 = BSP_CAMERA_DMA_INSTANCE;
 
-  /*** Configure the NVIC for DCMI and DMA ***/
-  /* NVIC configuration for DCMI transfer complete interrupt */
-  HAL_NVIC_SetPriority(DCMI_IRQn, BSP_CAMERA_IT_PRIORITY, 0);
-  HAL_NVIC_EnableIRQ(DCMI_IRQn);
+	  hdma_handler.Init.Request             = DMA_REQUEST_0;
+	  hdma_handler.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+	  hdma_handler.Init.PeriphInc           = DMA_PINC_DISABLE;
+	  hdma_handler.Init.MemInc              = DMA_MINC_ENABLE;      /* Image captured by the DCMI is stored in memory */
+	  hdma_handler.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+	  hdma_handler.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+	  hdma_handler.Init.Mode                = DMA_CIRCULAR;
+	  hdma_handler.Init.Priority            = DMA_PRIORITY_HIGH;
 
-  /* NVIC configuration for DMA2D transfer complete interrupt */
-//  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, BSP_CAMERA_IT_PRIORITY, 0);
-//  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+	  /* Associate the initialized DMA handle to the DCMI handle */
+	  __HAL_LINKDMA(hdcmi, DMA_Handle, hdma_handler);
 
-  /* Configure the DMA stream */
-  (void)HAL_DMA_Init(hdcmi->DMA_Handle);
+	  /*** Configure the NVIC for DCMI and DMA ***/
+	  /* NVIC configuration for DCMI transfer complete interrupt */
+	  HAL_NVIC_SetPriority(DCMI_IRQn, 0x0F, 0);
+	  HAL_NVIC_EnableIRQ(DCMI_IRQn);
+
+	  /* NVIC configuration for DMA2D transfer complete interrupt */
+	  HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0x0F, 0);
+	  HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
+
+	  /* Configure the DMA stream */
+	  HAL_DMA_Init(hdcmi->DMA_Handle);
 }
 
 /**

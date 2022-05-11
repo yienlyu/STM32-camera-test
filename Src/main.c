@@ -41,13 +41,19 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+DMA2D_HandleTypeDef Dma2dHandle;
+UART_HandleTypeDef huart2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+static void IO_Init(void);
+static void MX_USART2_UART_Init(void);
+static void OnError_Handler(uint32_t condition);
+static void DMA2D_Config(void);
+static void TransferError(DMA2D_HandleTypeDef* Dma2dHandle);
+static void TransferComplete(DMA2D_HandleTypeDef* Dma2dHandle);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -84,6 +90,17 @@ int main(void)
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
+  IO_Init();
+  MX_USART2_UART_Init();
+  DMA2D_Config();
+
+  if(BSP_CAMERA_Init(0,CAMERA_R320x240,CAMERA_PF_RGB565) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+
+  /* Wait 1s to let auto-loops in the camera module converge and lead to correct exposure */
+  HAL_Delay(1000);
 
   /* USER CODE END 2 */
 
@@ -147,6 +164,130 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief IO initialization.
+  * @note  GPIO PH.00 setting to activate STM32L496 Discovery I/Os
+  *        and I/O initialization.
+  * @retval None
+  */
+static void IO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull =   GPIO_NOPULL;
+  GPIO_InitStruct.Alternate = 0;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+
+  HAL_GPIO_Init( GPIOH, &GPIO_InitStruct );
+
+  HAL_GPIO_WritePin( GPIOH, GPIO_PIN_0, GPIO_PIN_RESET);
+
+  /* Initialize the IO functionalities */
+  BSP_IO_Init();
+}
+
+
+static void DMA2D_Config(void)
+{
+  HAL_StatusTypeDef hal_status = HAL_OK;
+
+  /* Enable DMA2D clock */
+  __HAL_RCC_DMA2D_CLK_ENABLE();
+
+  /* NVIC configuration for DMA2D transfer complete interrupt */
+  HAL_NVIC_SetPriority(DMA2D_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2D_IRQn);
+
+  /* Configure the DMA2D Mode, Color Mode and output offset */
+  Dma2dHandle.Init.Mode         = DMA2D_M2M;              /* DMA2D Mode memory to memory */
+  Dma2dHandle.Init.ColorMode    = DMA2D_OUTPUT_RGB565;    /* Output color mode is RGB565 : 16 bpp */
+  Dma2dHandle.Init.OutputOffset = 0x0;                    /* No offset in output */
+  Dma2dHandle.Init.RedBlueSwap   = DMA2D_RB_REGULAR;      /* No R&B swap for the output image */
+  Dma2dHandle.Init.AlphaInverted = DMA2D_REGULAR_ALPHA;   /* No alpha inversion for the output image */
+
+  /* DMA2D Callbacks Configuration */
+  Dma2dHandle.XferCpltCallback  = TransferComplete;
+  Dma2dHandle.XferErrorCallback = TransferError;
+
+  /* Foreground Configuration : Layer 1 */
+  Dma2dHandle.LayerCfg[1].AlphaMode = DMA2D_NO_MODIF_ALPHA;
+  Dma2dHandle.LayerCfg[1].InputAlpha = 0xFF;                    /* Fully opaque */
+  Dma2dHandle.LayerCfg[1].InputColorMode = DMA2D_INPUT_RGB565;  /* Foreground layer format is RGB565 : 16 bpp */
+  Dma2dHandle.LayerCfg[1].InputOffset = 0x0;                    /* No offset in input */
+  Dma2dHandle.LayerCfg[1].RedBlueSwap   = DMA2D_RB_REGULAR;     /* No R&B swap for the input foreground image */
+  Dma2dHandle.LayerCfg[1].AlphaInverted = DMA2D_REGULAR_ALPHA;  /* No alpha inversion for the input foreground image */
+
+  Dma2dHandle.Instance = DMA2D;
+
+  /* DMA2D Initialization */
+  hal_status = HAL_DMA2D_Init(&Dma2dHandle);
+  OnError_Handler(hal_status != HAL_OK);
+
+  hal_status = HAL_DMA2D_ConfigLayer(&Dma2dHandle, 1);
+  OnError_Handler(hal_status != HAL_OK);
+}
+
+/**
+  * @brief  DMA2D Transfer complete callback
+  * @param  hdma2d: DMA2D handle.
+  * @note   This example shows a simple way to report end of DMA2D transfer, and
+  *         you can add your own implementation.
+  * @retval None
+  */
+static void TransferComplete(DMA2D_HandleTypeDef *hdma2d)
+{
+  /* Set LED2 On */
+  BSP_LED_On(LED2);
+}
+
+/**
+  * @brief  DMA2D error callback
+  * @param  hdma2d: DMA2D handle
+  * @note   This example shows a simple way to report DMA2D transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+static void TransferError(DMA2D_HandleTypeDef *hdma2d)
+{
+  /* Set LED1 On */
+  BSP_LED_On(LED1);
+}
+
+
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
 
 /* USER CODE END 4 */
 
@@ -163,6 +304,20 @@ void Error_Handler(void)
   {
   }
   /* USER CODE END Error_Handler_Debug */
+}
+
+/**
+  * @brief  On Error Handler on condition TRUE.
+  * @param  condition : Can be TRUE or FALSE
+  * @retval None
+  */
+static void OnError_Handler(uint32_t condition)
+{
+  if(condition)
+  {
+    BSP_LED_On(LED1);
+    while(1) { ; } /* Blocking on error */
+  }
 }
 
 #ifdef  USE_FULL_ASSERT

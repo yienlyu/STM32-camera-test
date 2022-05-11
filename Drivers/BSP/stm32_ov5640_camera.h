@@ -28,6 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l496g_discovery_errno.h"
 #include "stm32l496g_discovery_conf.h"
+#include "stm32l496g_discovery_io.h"
 #include "stm32l4xx_hal_dcmi.h"
 #include "camera.h"
 
@@ -105,6 +106,8 @@ typedef struct
   * @}
   */
 
+#define CAMERA_PWR_EN_PIN                  IO1_PIN_6
+
 /** @defgroup STM32H747I_DISCO_CAMERA_Exported_Constants Exported Constants
   * @{
   */
@@ -173,8 +176,10 @@ typedef struct
 #define CAMERA_NIGHT_MODE_SET           0x00U   /* Disable night mode         */
 #define CAMERA_NIGHT_MODE_RESET         0x01U   /* Enable night mode          */
 
-#define CAMERA_IRQHandler               DCMI_IRQHandler
-#define CAMERA_DMA_IRQHandler           DMA2_Stream3_IRQHandler
+#define BSP_CAMERA_IRQHandler      		DCMI_IRQHandler
+#define BSP_CAMERA_DMA_IRQHandler  		DMA2_Channel6_IRQHandler
+#define BSP_CAMERA_DMA_IRQn        		DMA2_Channel6_IRQn
+#define BSP_CAMERA_DMA_INSTANCE    		DMA2_Channel6
 
 
 #define CAMERA_OV9655_ADDRESS           0x60U

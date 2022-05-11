@@ -240,9 +240,6 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     }
     else
     {
-//#if (USE_CAMERA_SENSOR_OV9655 == 1)
-//      ret= OV9655_Probe(Resolution, PixelFormat);
-//#endif
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
       if(ret != BSP_ERROR_NONE)
       {
@@ -255,36 +252,12 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
       }
       else
       {
-        if((CameraId == OV9655_ID) || (CameraId == OV9655_ID_2))
-        {
-          if(Resolution == CAMERA_R480x272)
-          {
-            if(HAL_DCMI_ConfigCROP(&hcamera_dcmi,           /* Crop in the middle of the VGA picture */
-                                   (CAMERA_VGA_RES_X - CAMERA_480x272_RES_X)/2,
-                                   (CAMERA_VGA_RES_Y - CAMERA_480x272_RES_Y)/2,
-                                   (CAMERA_480x272_RES_X * 2) - 1,
-                                   CAMERA_480x272_RES_Y - 1) != HAL_OK)
-            {
-              ret = BSP_ERROR_PERIPH_FAILURE;
-            }
-            else
-            {
-              if(HAL_DCMI_EnableCROP(&hcamera_dcmi) != HAL_OK)
-              {
-                ret = BSP_ERROR_PERIPH_FAILURE;
-              }
-            }
-          }
-        }
-        else
-        {
-          HSPolarity = DCMI_HSPOLARITY_HIGH;
-          /* Initialize the camera driver structure */
-          if(MX_DCMI_Init(&hcamera_dcmi) != HAL_OK)
-          {
-            ret = BSP_ERROR_PERIPH_FAILURE;
-          }
-        }
+	    HSPolarity = DCMI_HSPOLARITY_HIGH;
+	    /* Initialize the camera driver structure */
+	    if(MX_DCMI_Init(&hcamera_dcmi) != HAL_OK)
+	    {
+	  	  ret = BSP_ERROR_PERIPH_FAILURE;
+	    }
 
         if(ret == BSP_ERROR_NONE)
         {

@@ -102,6 +102,9 @@ int main(void)
   /* Wait 1s to let auto-loops in the camera module converge and lead to correct exposure */
   HAL_Delay(1000);
 
+  /* Start the Camera Snapshot Capture */
+  BSP_CAMERA_Start(0,(uint8_t *)CAMERA_FRAME_BUFFER,CAMERA_MODE_SNAPSHOT);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

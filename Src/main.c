@@ -41,6 +41,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t pBuffer[320 * 240 * 2] = {0};
+
 DMA2D_HandleTypeDef Dma2dHandle;
 UART_HandleTypeDef huart2;
 /* USER CODE END PV */
@@ -92,7 +94,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   IO_Init();
   MX_USART2_UART_Init();
+  HAL_UART_Transmit(&huart2, "Start\n", sizeof("Start\n"), HAL_MAX_DELAY);
   DMA2D_Config();
+
 
   if(BSP_CAMERA_Init(0,CAMERA_R320x240,CAMERA_PF_RGB565) != BSP_ERROR_NONE)
   {
@@ -103,9 +107,10 @@ int main(void)
   HAL_Delay(1000);
 
   /* Start the Camera Snapshot Capture */
-  BSP_CAMERA_Start(0,(uint8_t *)CAMERA_FRAME_BUFFER,CAMERA_MODE_SNAPSHOT);
+  BSP_CAMERA_Start(0, pBuffer, CAMERA_MODE_SNAPSHOT);
 
-//  HAL_UART_Transmit(&huart2, (uint32_t)CAMERA_FRAME_BUFFER, sizeof(CAMERA_FRAME_BUFFER), sizeof(CAMERA_FRAME_BUFFER));
+  HAL_UART_Transmit(&huart2, "[i]\n", sizeof("[i]\n"), HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, pBuffer, 240 * 320 * 2, HAL_MAX_DELAY);
 //  HAL_Delay(1000);
   /* USER CODE END 2 */
 

@@ -1,8 +1,6 @@
 stm32_ov5640_camera.c:207:9:BSP_CAMERA_Init	32	static
 stm32_ov5640_camera.c:319:9:BSP_CAMERA_DeInit	24	static
 stm32_ov5640_camera.c:381:26:MX_DCMI_Init	16	static
-stm32_ov5640_camera.c:406:9:BSP_CAMERA_RegisterDefaultMspCallbacks	24	static
-stm32_ov5640_camera.c:442:9:BSP_CAMERA_RegisterMspCallbacks	24	static
 stm32_ov5640_camera.c:480:9:BSP_CAMERA_Start	40	static
 stm32_ov5640_camera.c:506:9:BSP_CAMERA_Stop	24	static
 stm32_ov5640_camera.c:531:9:BSP_CAMERA_Suspend	24	static
@@ -38,10 +36,10 @@ stm32_ov5640_camera.c:1374:6:DMA2_Channel6_IRQHandler	16	static
 stm32_ov5640_camera.c:1396:16:GetSize	24	static
 stm32_ov5640_camera.c:1438:13:DCMI_MspInit	64	static
 stm32_ov5640_camera.c:1520:13:DCMI_MspDeInit	40	static
-stm32_ov5640_camera.c:1613:13:DCMI_LineEventCallback	16	static
-stm32_ov5640_camera.c:1626:13:DCMI_FrameEventCallback	16	static
-stm32_ov5640_camera.c:1639:13:DCMI_VsyncEventCallback	16	static
-stm32_ov5640_camera.c:1652:13:DCMI_ErrorCallback	16	static
+stm32_ov5640_camera.c:1561:6:HAL_DCMI_LineEventCallback	16	static
+stm32_ov5640_camera.c:1574:6:HAL_DCMI_FrameEventCallback	16	static
+stm32_ov5640_camera.c:1587:6:HAL_DCMI_VsyncEventCallback	16	static
+stm32_ov5640_camera.c:1600:6:HAL_DCMI_ErrorCallback	16	static
 stm32_ov5640_camera.c:1666:13:BSP_CAMERA_LineEventCallback	16	static
 stm32_ov5640_camera.c:1681:13:BSP_CAMERA_FrameEventCallback	16	static
 stm32_ov5640_camera.c:1696:13:BSP_CAMERA_VsyncEventCallback	16	static

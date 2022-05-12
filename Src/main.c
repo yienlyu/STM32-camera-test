@@ -105,6 +105,8 @@ int main(void)
   /* Start the Camera Snapshot Capture */
   BSP_CAMERA_Start(0,(uint8_t *)CAMERA_FRAME_BUFFER,CAMERA_MODE_SNAPSHOT);
 
+//  HAL_UART_Transmit(&huart2, (uint32_t)CAMERA_FRAME_BUFFER, sizeof(CAMERA_FRAME_BUFFER), sizeof(CAMERA_FRAME_BUFFER));
+//  HAL_Delay(1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -129,7 +129,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_ov5640_camera.h"
-//#include "stm32h747i_discovery_bus.h"
+#include "stm32_ov5640_bus.h"
 
 /** @addtogroup BSP
   * @{
@@ -209,6 +209,11 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
   int32_t ret = BSP_ERROR_NONE;
   BSP_IO_Init();
 
+  // Config PWR_EN_PIN
+  BSP_IO_ConfigPin(CAMERA_PWR_EN_PIN, IO_MODE_OUTPUT);
+  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_SET);  // redLED down
+  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_RESET);  // redLED up
+
   if(Instance >= CAMERA_INSTANCES_NBR)
   {
     ret = BSP_ERROR_WRONG_PARAM;
@@ -241,10 +246,10 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     else
     {
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
-      if(ret != BSP_ERROR_NONE)
-      {
+//      if(ret != BSP_ERROR_NONE)
+//      {
         ret = OV5640_Probe(Resolution, PixelFormat);
-      }
+//      }
 #endif
       if(ret != BSP_ERROR_NONE)
       {
@@ -1478,10 +1483,6 @@ static void DCMI_MspInit(DCMI_HandleTypeDef *hdcmi)
 	  gpio_init_structure.Alternate = GPIO_AF10_DCMI;
 	  HAL_GPIO_Init(GPIOI, &gpio_init_structure);
 
-	  BSP_IO_ConfigPin(CAMERA_PWR_EN_PIN, IO_MODE_OUTPUT);
-	  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_SET);  // redLED down
-	  BSP_IO_WritePin(CAMERA_PWR_EN_PIN, IO_PIN_RESET);  // redLED up
-
 	  /*** Configure the DMA ***/
 	  /* Set the parameters to be configured */
 	  hdma_handler.Instance                 = BSP_CAMERA_DMA_INSTANCE;
@@ -1739,7 +1740,7 @@ static int32_t OV9655_Probe(uint32_t Resolution, uint32_t PixelFormat)
   /* Configure the audio driver */
   IOCtx.Address     = CAMERA_OV9655_ADDRESS;
 //  IOCtx.Init        = BSP_I2C4_Init;
-//  IOCtx.DeInit      = BSP_I2C4_DeInit;
+//  IOCtx.DeInit      = BSP_I2C2_DeInit;
 //  IOCtx.ReadReg     = BSP_I2C4_ReadReg;
 //  IOCtx.WriteReg    = BSP_I2C4_WriteReg;
 //  IOCtx.GetTick     = BSP_GetTick;
@@ -1793,12 +1794,12 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
   static OV5640_Object_t   OV5640Obj;
 
   /* Configure the audio driver */
-  IOCtx.Address     = CAMERA_OV5640_ADDRESS;
-//  IOCtx.Init        = BSP_I2C4_Init;
-//  IOCtx.DeInit      = BSP_I2C4_DeInit;
-//  IOCtx.ReadReg     = BSP_I2C4_ReadReg16;
-//  IOCtx.WriteReg    = BSP_I2C4_WriteReg16;
-//  IOCtx.GetTick     = BSP_GetTick;
+  IOCtx.Address     = CAMERA_OV5640_ADDRESS;  // ok
+  IOCtx.Init        = BSP_I2C2_Init;
+  IOCtx.DeInit      = BSP_I2C2_DeInit;
+  IOCtx.ReadReg     = BSP_I2C2_ReadReg16;
+  IOCtx.WriteReg    = BSP_I2C2_WriteReg16;
+  IOCtx.GetTick     = BSP_GetTick;
 
   if(OV5640_RegisterBusIO (&OV5640Obj, &IOCtx) != OV5640_OK)
   {

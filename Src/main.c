@@ -43,6 +43,7 @@
 /* USER CODE BEGIN PV */
 uint8_t pBuffer[320 * 240 * 2] = {0};
 
+extern DCMI_HandleTypeDef hDcmiHandler;
 DMA2D_HandleTypeDef Dma2dHandle;
 UART_HandleTypeDef huart2;
 /* USER CODE END PV */
@@ -51,6 +52,7 @@ UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 static void IO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void OnError_Handler(uint32_t condition);
 static void DMA2D_Config(void);
@@ -86,15 +88,18 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  IO_Init();
+  MX_DMA_Init();
+  MX_USART2_UART_Init();
+
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED1);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
-  IO_Init();
-  MX_USART2_UART_Init();
-  HAL_UART_Transmit(&huart2, "Start\n", sizeof("Start\n"), HAL_MAX_DELAY);
+
+//  HAL_UART_Transmit(&huart2, "Start\n", sizeof("Start\n"), HAL_MAX_DELAY);
   DMA2D_Config();
 
 
@@ -106,11 +111,18 @@ int main(void)
   /* Wait 1s to let auto-loops in the camera module converge and lead to correct exposure */
   HAL_Delay(1000);
 
-  /* Start the Camera Snapshot Capture */
-  BSP_CAMERA_Start(0, pBuffer, CAMERA_MODE_SNAPSHOT);
+  /* Disable unwanted HSYNC (IT_LINE)/VSYNC interrupts */
+  __HAL_DCMI_DISABLE_IT(&hDcmiHandler, DCMI_IT_LINE | DCMI_IT_VSYNC);
 
-  HAL_UART_Transmit(&huart2, "[i]\n", sizeof("[i]\n"), HAL_MAX_DELAY);
-  HAL_UART_Transmit(&huart2, pBuffer, 240 * 320 * 2, HAL_MAX_DELAY);
+  /* Start the Camera Snapshot Capture */
+  if (BSP_CAMERA_Start(0, pBuffer, CAMERA_MODE_SNAPSHOT) != BSP_ERROR_NONE)
+  {
+	Error_Handler();
+  }
+
+//  HAL_UART_Transmit(&huart2, "[i]\n", sizeof("[i]\n"), HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, pBuffer, 240 * 320 * 2, 240 * 320 * 2);
+  HAL_Delay(1000);
 //  HAL_Delay(1000);
   /* USER CODE END 2 */
 
@@ -164,8 +176,8 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  // tmp
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  // tmp
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
@@ -268,6 +280,25 @@ static void TransferError(DMA2D_HandleTypeDef *hdma2d)
   BSP_LED_On(LED1);
 }
 
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+}
 
 static void MX_USART2_UART_Init(void)
 {

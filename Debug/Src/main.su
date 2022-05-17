@@ -1,0 +1,10 @@
+main.c:72:5:main	8	static
+main.c:144:6:SystemClock_Config	96	static
+main.c:195:13:IO_Init	32	static
+main.c:217:13:DMA2D_Config	16	static
+main.c:264:13:TransferComplete	16	static
+main.c:277:13:TransferError	16	static
+main.c:287:13:MX_DMA_Init	16	static
+main.c:303:13:MX_USART2_UART_Init	8	static
+main.c:339:6:Error_Handler	4	static,ignoring_inline_asm
+main.c:355:13:OnError_Handler	16	static

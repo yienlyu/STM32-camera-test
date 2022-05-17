@@ -147,7 +147,7 @@
   * @{
   */
 void                *Camera_CompObj = NULL;
-DCMI_HandleTypeDef  hcamera_dcmi;
+DCMI_HandleTypeDef  hDcmiHandler;
 CAMERA_Ctx_t        Camera_Ctx[CAMERA_INSTANCES_NBR];
 /**
   * @}
@@ -232,10 +232,10 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     }
 #else
     /* DCMI Initialization */
-    DCMI_MspInit(&hcamera_dcmi);
+    DCMI_MspInit(&hDcmiHandler);
 #endif
     /* Initialize the camera driver structure */
-    if(MX_DCMI_Init(&hcamera_dcmi) != HAL_OK)
+    if(MX_DCMI_Init(&hDcmiHandler) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
@@ -259,7 +259,7 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
       {
 	    HSPolarity = DCMI_HSPOLARITY_HIGH;
 	    /* Initialize the camera driver structure */
-	    if(MX_DCMI_Init(&hcamera_dcmi) != HAL_OK)
+	    if(MX_DCMI_Init(&hDcmiHandler) != HAL_OK)
 	    {
 	  	  ret = BSP_ERROR_PERIPH_FAILURE;
 	    }
@@ -277,19 +277,19 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
           Camera_Ctx[Instance].CameraId  = CameraId;
 #if (USE_HAL_DCMI_REGISTER_CALLBACKS == 1)
           /* Register DCMI LineEvent, FrameEvent and Error callbacks */
-          if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_LINE_EVENT_CB_ID, DCMI_LineEventCallback) != HAL_OK)
+          if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_LINE_EVENT_CB_ID, DCMI_LineEventCallback) != HAL_OK)
           {
             ret = BSP_ERROR_PERIPH_FAILURE;
           }
-          else if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_FRAME_EVENT_CB_ID, DCMI_FrameEventCallback) != HAL_OK)
+          else if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_FRAME_EVENT_CB_ID, DCMI_FrameEventCallback) != HAL_OK)
           {
             ret = BSP_ERROR_PERIPH_FAILURE;
           }
-          else if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_VSYNC_EVENT_CB_ID, DCMI_VsyncEventCallback) != HAL_OK)
+          else if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_VSYNC_EVENT_CB_ID, DCMI_VsyncEventCallback) != HAL_OK)
           {
             ret = BSP_ERROR_PERIPH_FAILURE;
           }
-          else if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_ERROR_CB_ID, DCMI_ErrorCallback) != HAL_OK)
+          else if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_ERROR_CB_ID, DCMI_ErrorCallback) != HAL_OK)
           {
             ret = BSP_ERROR_PERIPH_FAILURE;
           }
@@ -332,25 +332,25 @@ int32_t BSP_CAMERA_DeInit(uint32_t Instance)
     }
     else
     {
-      hcamera_dcmi.Instance = DCMI;
+      hDcmiHandler.Instance = DCMI;
 
       /* First stop the camera to insure all data are transferred */
       if(BSP_CAMERA_Stop(Instance) != BSP_ERROR_NONE)
       {
         ret = BSP_ERROR_PERIPH_FAILURE;
       }
-      else if(HAL_DCMI_DisableCROP(&hcamera_dcmi)!= HAL_OK)
+      else if(HAL_DCMI_DisableCROP(&hDcmiHandler)!= HAL_OK)
       {
         ret = BSP_ERROR_PERIPH_FAILURE;
       }
-      else if(HAL_DCMI_DeInit(&hcamera_dcmi) != HAL_OK)
+      else if(HAL_DCMI_DeInit(&hDcmiHandler) != HAL_OK)
       {
         ret = BSP_ERROR_PERIPH_FAILURE;
       }
       else
       {
 #if (USE_HAL_DCMI_REGISTER_CALLBACKS == 0)
-        DCMI_MspDeInit(&hcamera_dcmi);
+        DCMI_MspDeInit(&hDcmiHandler);
 #endif /* (USE_HAL_DCMI_REGISTER_CALLBACKS == 0) */
 
         if(Camera_Drv->DeInit(Camera_CompObj) != BSP_ERROR_NONE)
@@ -413,14 +413,14 @@ int32_t BSP_CAMERA_RegisterDefaultMspCallbacks (uint32_t Instance)
   }
   else
   {
-    __HAL_DCMI_RESET_HANDLE_STATE(&hcamera_dcmi);
+    __HAL_DCMI_RESET_HANDLE_STATE(&hDcmiHandler);
 
     /* Register MspInit/MspDeInit Callbacks */
-    if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_MSPINIT_CB_ID, DCMI_MspInit) != HAL_OK)
+    if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_MSPINIT_CB_ID, DCMI_MspInit) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
-    else if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_MSPDEINIT_CB_ID, DCMI_MspDeInit) != HAL_OK)
+    else if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_MSPDEINIT_CB_ID, DCMI_MspDeInit) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
@@ -449,14 +449,14 @@ int32_t BSP_CAMERA_RegisterMspCallbacks(uint32_t Instance, BSP_CAMERA_Cb_t *Call
   }
   else
   {
-    __HAL_DCMI_RESET_HANDLE_STATE(&hcamera_dcmi);
+    __HAL_DCMI_RESET_HANDLE_STATE(&hDcmiHandler);
 
     /* Register MspInit/MspDeInit Callbacks */
-    if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_MSPINIT_CB_ID, CallBacks->pMspInitCb) != HAL_OK)
+    if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_MSPINIT_CB_ID, CallBacks->pMspInitCb) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
-    else if(HAL_DCMI_RegisterCallback(&hcamera_dcmi, HAL_DCMI_MSPDEINIT_CB_ID, CallBacks->pMspDeInitCb) != HAL_OK)
+    else if(HAL_DCMI_RegisterCallback(&hDcmiHandler, HAL_DCMI_MSPDEINIT_CB_ID, CallBacks->pMspDeInitCb) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
@@ -485,7 +485,7 @@ int32_t BSP_CAMERA_Start(uint32_t Instance, uint8_t *pBff, uint32_t Mode)
   {
     ret = BSP_ERROR_WRONG_PARAM;
   }
-  else if(HAL_DCMI_Start_DMA(&hcamera_dcmi, Mode, (uint32_t)pBff, (uint32_t)GetSize(Camera_Ctx[Instance].Resolution, Camera_Ctx[Instance].PixelFormat)) != HAL_OK)
+  else if(HAL_DCMI_Start_DMA(&hDcmiHandler, Mode, (uint32_t)pBff, (uint32_t)GetSize(Camera_Ctx[Instance].Resolution, Camera_Ctx[Instance].PixelFormat)) != HAL_OK)
   {
     return BSP_ERROR_PERIPH_FAILURE;
   }
@@ -511,7 +511,7 @@ int32_t BSP_CAMERA_Stop(uint32_t Instance)
   {
     ret = BSP_ERROR_WRONG_PARAM;
   }
-  else if(HAL_DCMI_Stop(&hcamera_dcmi) != HAL_OK)
+  else if(HAL_DCMI_Stop(&hDcmiHandler) != HAL_OK)
   {
     ret = BSP_ERROR_PERIPH_FAILURE;
   }
@@ -536,7 +536,7 @@ int32_t BSP_CAMERA_Suspend(uint32_t Instance)
   {
     ret = BSP_ERROR_WRONG_PARAM;
   }
-  else if(HAL_DCMI_Suspend(&hcamera_dcmi) != HAL_OK)
+  else if(HAL_DCMI_Suspend(&hDcmiHandler) != HAL_OK)
   {
     return BSP_ERROR_PERIPH_FAILURE;
   }
@@ -561,7 +561,7 @@ int32_t BSP_CAMERA_Resume(uint32_t Instance)
   {
     ret = BSP_ERROR_WRONG_PARAM;
   }
-  else if(HAL_DCMI_Resume(&hcamera_dcmi) != HAL_OK)
+  else if(HAL_DCMI_Resume(&hDcmiHandler) != HAL_OK)
   {
     ret = BSP_ERROR_PERIPH_FAILURE;
   }
@@ -1363,7 +1363,7 @@ void BSP_CAMERA_IRQHandler(uint32_t Instance)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(Instance);
 
-  HAL_DCMI_IRQHandler(&hcamera_dcmi);
+  HAL_DCMI_IRQHandler(&hDcmiHandler);
 }
 
 /**
@@ -1376,7 +1376,7 @@ void BSP_CAMERA_DMA_IRQHandler(uint32_t Instance)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(Instance);
 
-  HAL_DMA_IRQHandler(hcamera_dcmi.DMA_Handle);
+  HAL_DMA_IRQHandler(hDcmiHandler.DMA_Handle);
 }
 
 /**

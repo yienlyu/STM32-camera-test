@@ -245,6 +245,9 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     }
     else
     {
+#if (USE_CAMERA_SENSOR_OV9655 == 1)
+        ret = OV9655_Probe(Resolution, PixelFormat);
+#endif
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
 //      if(ret != BSP_ERROR_NONE)
 //      {
@@ -1265,7 +1268,7 @@ int32_t BSP_CAMERA_DisableNightMode(uint32_t Instance)
 int32_t BSP_CAMERA_HwReset(uint32_t Instance)
 {
   int32_t ret = BSP_ERROR_NONE;
-  GPIO_InitTypeDef gpio_init_structure;
+//  GPIO_InitTypeDef gpio_init_structure;
 
   if(Instance >= CAMERA_INSTANCES_NBR)
   {

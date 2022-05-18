@@ -86,7 +86,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
     /**USART2 GPIO Configuration
-    PA3     ------> USART2_RX
+    PD6     ------> USART2_RX
     PA2     ------> USART2_TX
     */
     GPIO_InitStruct.Pin = GPIO_PIN_2;
@@ -96,7 +96,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -139,7 +139,49 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 }
 
+/**
+* @brief DMA2D MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hdma2d: DMA2D handle pointer
+* @retval None
+*/
+void HAL_DMA2D_MspInit(DMA2D_HandleTypeDef* hdma2d)
+{
+  if(hdma2d->Instance==DMA2D)
+  {
+  /* USER CODE BEGIN DMA2D_MspInit 0 */
 
+  /* USER CODE END DMA2D_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_DMA2D_CLK_ENABLE();
+  /* USER CODE BEGIN DMA2D_MspInit 1 */
+
+  /* USER CODE END DMA2D_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief DMA2D MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hdma2d: DMA2D handle pointer
+* @retval None
+*/
+void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d)
+{
+  if(hdma2d->Instance==DMA2D)
+  {
+  /* USER CODE BEGIN DMA2D_MspDeInit 0 */
+
+  /* USER CODE END DMA2D_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_DMA2D_CLK_DISABLE();
+  /* USER CODE BEGIN DMA2D_MspDeInit 1 */
+
+  /* USER CODE END DMA2D_MspDeInit 1 */
+  }
+
+}
 /* USER CODE END 0 */
 /**
   * Initializes the Global MSP.

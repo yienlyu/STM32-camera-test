@@ -121,9 +121,7 @@ int main(void)
   }
 
 //  HAL_UART_Transmit(&huart2, "[i]\n", sizeof("[i]\n"), HAL_MAX_DELAY);
-  HAL_UART_Transmit(&huart2, pBuffer, 240 * 320 * 2, 240 * 320 * 2);
-  HAL_Delay(1000);
-//  HAL_Delay(1000);
+  HAL_UART_Transmit(&huart2, pBuffer, 240 * 320 * 2, HAL_MAX_DELAY);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -176,8 +174,8 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  // tmp
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  // tmp
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;  // tmp
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  // tmp
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {

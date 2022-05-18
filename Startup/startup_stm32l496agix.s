@@ -211,7 +211,7 @@ g_pfnVectors:
   .word	LPTIM1_IRQHandler            			/* LP TIM1 interrupt                                                   */
   .word	LPTIM2_IRQHandler            			/* LP TIM2 interrupt                                                   */
   .word	OTG_FS_IRQHandler            			/* USB OTG FS global Interrupt                                         */
-  .word	DMA2_CH6_IRQHandler          			/* DMA2 Channel 6 global Interrupt                                     */
+  .word	DMA2_Channel6_IRQHandler          			/* DMA2 Channel 6 global Interrupt                                     */
   .word	DMA2_CH7_IRQHandler          			/* DMA2 Channel 7 global Interrupt                                     */
   .word	LPUART1_IRQHandler           			/* LPUART1 global interrupt                                            */
   .word	QUADSPI_IRQHandler           			/* Quad SPI global interrupt                                           */
@@ -474,8 +474,8 @@ g_pfnVectors:
 	.weak	OTG_FS_IRQHandler
 	.thumb_set OTG_FS_IRQHandler,Default_Handler
 
-	.weak	DMA2_CH6_IRQHandler
-	.thumb_set DMA2_CH6_IRQHandler,Default_Handler
+	.weak	DMA2_Channel6_IRQHandler
+	.thumb_set DMA2_Channel6_IRQHandler,Default_Handler
 
 	.weak	DMA2_CH7_IRQHandler
 	.thumb_set DMA2_CH7_IRQHandler,Default_Handler

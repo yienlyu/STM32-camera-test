@@ -199,6 +199,35 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief  DMA interrupt handler.
+  * @param  None
+  * @retval None
+  */
+void DMA2_Channel6_IRQHandler(void)
+{
+  BSP_CAMERA_DMA_IRQHandler(0);
+}
 
+/**
+  * @brief  DCMI interrupt handler.
+  * @param  None
+  * @retval None
+  */
+//void CAMERA_IRQHandler(void)
+//{
+//  BSP_CAMERA_IRQHandler(0);
+//}
+
+
+/**
+* @brief DCMI interrupt handler.
+* @param None
+* @retval None
+*/
+void DCMI_IRQHandler(void)
+{
+  BSP_CAMERA_IRQHandler(0);
+}
 /* USER CODE END 1 */
 

@@ -89,7 +89,7 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
   IO_Init();
-  MX_DMA_Init();
+//  MX_DMA_Init();
   MX_USART2_UART_Init();
 
   BSP_LED_Init(LED2);

@@ -1488,7 +1488,7 @@ static void DCMI_MspInit(DCMI_HandleTypeDef *hdcmi)
 
 	  /*** Configure the DMA ***/
 	  /* Set the parameters to be configured */
-	  hdma_handler.Instance                 = BSP_CAMERA_DMA_INSTANCE;
+	  hdma_handler.Instance                 = CAMERA_DMA_INSTANCE;
 
 	  hdma_handler.Init.Request             = DMA_REQUEST_0;
 	  hdma_handler.Init.Direction           = DMA_PERIPH_TO_MEMORY;

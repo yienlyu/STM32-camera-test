@@ -1742,11 +1742,11 @@ static int32_t OV9655_Probe(uint32_t Resolution, uint32_t PixelFormat)
 
   /* Configure the audio driver */
   IOCtx.Address     = CAMERA_OV9655_ADDRESS;
-//  IOCtx.Init        = BSP_I2C4_Init;
-//  IOCtx.DeInit      = BSP_I2C2_DeInit;
-//  IOCtx.ReadReg     = BSP_I2C4_ReadReg;
-//  IOCtx.WriteReg    = BSP_I2C4_WriteReg;
-//  IOCtx.GetTick     = BSP_GetTick;
+  IOCtx.Init        = BSP_I2C2_Init;
+  IOCtx.DeInit      = BSP_I2C2_DeInit;
+  IOCtx.ReadReg     = BSP_I2C2_ReadReg;
+  IOCtx.WriteReg    = BSP_I2C2_WriteReg;
+  IOCtx.GetTick     = BSP_GetTick;
 
   if(OV9655_RegisterBusIO (&OV9655Obj, &IOCtx) != OV9655_OK)
   {
@@ -1792,7 +1792,7 @@ static int32_t OV9655_Probe(uint32_t Resolution, uint32_t PixelFormat)
   */
 static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
 {
-   int32_t ret;
+  int32_t ret;
   OV5640_IO_t              IOCtx;
   static OV5640_Object_t   OV5640Obj;
 
@@ -1804,7 +1804,7 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
   IOCtx.WriteReg    = BSP_I2C2_WriteReg16;
   IOCtx.GetTick     = BSP_GetTick;
 
-  if(OV5640_RegisterBusIO (&OV5640Obj, &IOCtx) != OV5640_OK)
+  if(OV5640_RegisterBusIO(&OV5640Obj, &IOCtx) != OV5640_OK)
   {
     ret = BSP_ERROR_COMPONENT_FAILURE;
   }

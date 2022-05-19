@@ -42,6 +42,7 @@
 
 /* USER CODE BEGIN PV */
 uint8_t pBuffer[240 * 320 * 2] = {0};
+uint8_t camera_flag = 0;
 
 extern DCMI_HandleTypeDef hDcmiHandler;
 DMA2D_HandleTypeDef Dma2dHandle;
@@ -120,13 +121,19 @@ int main(void)
 	Error_Handler();
   }
 
+  while (camera_flag == 0) {
+	  ;
+  }
+
   uint8_t *pointer = pBuffer;
-  HAL_UART_Transmit(&huart2, "[i]\n", sizeof("[i]\n"), HAL_MAX_DELAY);
+//  uint8_t msg[4] = "[i]\n";
+//  HAL_UART_Transmit(&huart2, msg, 4, HAL_MAX_DELAY);
   HAL_UART_Transmit(&huart2, pointer, 65535, HAL_MAX_DELAY);
   pointer += 65535;
   HAL_UART_Transmit(&huart2, pointer, 65535, HAL_MAX_DELAY);
   pointer += 65535;
   HAL_UART_Transmit(&huart2, pointer, 22530, HAL_MAX_DELAY);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -188,6 +195,13 @@ void SystemClock_Config(void)
   }
 }
 
+void BSP_CAMERA_FrameEventCallback(uint32_t Instance)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Instance);
+
+  camera_flag = 1;
+}
 /* USER CODE BEGIN 4 */
 /**
   * @brief IO initialization.

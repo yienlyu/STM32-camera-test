@@ -121,13 +121,13 @@ int main(void)
 	Error_Handler();
   }
 
-  while (camera_flag == 0) {
-	  ;
-  }
+  while (camera_flag == 0) { ; }
 
   uint8_t *pointer = pBuffer;
+
 //  uint8_t msg[4] = "[i]\n";
 //  HAL_UART_Transmit(&huart2, msg, 4, HAL_MAX_DELAY);
+
   HAL_UART_Transmit(&huart2, pointer, 65535, HAL_MAX_DELAY);
   pointer += 65535;
   HAL_UART_Transmit(&huart2, pointer, 65535, HAL_MAX_DELAY);
